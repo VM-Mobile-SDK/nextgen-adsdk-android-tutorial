@@ -4,24 +4,27 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.adition.sdk_presentation_compose.api.Ad
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val viewModel = MainViewModel(this)
+    private val adViewModel: AdViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.adServiceStatus.observe(this) { isSuccess ->
+        val app = application as App
+        app.adServiceStatus.observe(this) { isSuccess ->
             if (isSuccess) {
                 setContent {
                     TutorialAppTheme {
-                        Greeting(name = "Android")
+                        AdView(adViewModel)
                     }
                 }
             } else {
@@ -37,18 +40,8 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TutorialAppTheme {
-        Greeting("Android")
+fun AdView(adViewModel: AdViewModel) {
+    adViewModel.advertisement.value?.let {
+        Ad(advertisement = it)
     }
 }
-
