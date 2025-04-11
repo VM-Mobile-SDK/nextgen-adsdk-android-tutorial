@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.adition.sdk_core.api.entities.exception.AdError
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme
 
 class MainActivity : ComponentActivity() {
@@ -15,22 +16,25 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val app = application as App
-        app.adServiceStatus.observe(this) { isSuccess ->
-            if (isSuccess) {
-                setContent {
-                    TutorialAppTheme {
-                        Greeting(name = "AdSDK")
+        app.adServiceStatus.observe(this) { result ->
+            when(result) {
+                is ResultState.Error -> {
+                    showAppError(result.exception)
+                }
+
+                is ResultState.Success -> {
+                    setContent {
+                        TutorialAppTheme {
+                            Greeting(name = "AdSDK")
+                        }
                     }
                 }
-            } else {
-                showAppError()
             }
-
         }
     }
 
-    private fun showAppError() {
-        Toast.makeText(this, "Initialization failed", Toast.LENGTH_LONG).show()
+    private fun showAppError(adError: AdError) {
+        Toast.makeText(this, "Initialization failed: ${adError.description}", Toast.LENGTH_LONG).show()
     }
 }
 
