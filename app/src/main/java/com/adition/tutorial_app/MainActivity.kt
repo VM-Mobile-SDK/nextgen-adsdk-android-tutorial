@@ -11,7 +11,6 @@ import com.adition.sdk_core.api.entities.exception.AdError
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
