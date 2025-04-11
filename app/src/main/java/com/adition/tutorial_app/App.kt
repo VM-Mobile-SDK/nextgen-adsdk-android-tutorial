@@ -22,10 +22,10 @@ class App: Application() {
 
             initResult.get(
                 onSuccess =  {
-                    adServiceStatus.value = ResultState.Success(Unit)
+                    adServiceStatus.postValue(ResultState.Success(Unit))
                 },
                 onError = {
-                    adServiceStatus.value = ResultState.Error(it)
+                    adServiceStatus.postValue(ResultState.Error(it))
                 }
             )
         }
