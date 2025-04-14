@@ -8,16 +8,12 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adition.sdk_core.api.core.AdService
-import com.adition.sdk_core.api.core.AdService.init
 import com.adition.sdk_core.api.core.Advertisement
 import com.adition.sdk_core.api.entities.exception.AdError
 import com.adition.sdk_core.api.entities.request.AdRequest
@@ -39,7 +35,7 @@ class MainActivity : ComponentActivity() {
                 is ResultState.Success -> {
                     setContent {
                         TutorialAppTheme {
-                            AdView()
+                            InlineAd()
                         }
                     }
                 }
@@ -53,8 +49,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AdView() {
-    val adViewModel by remember { mutableStateOf(AdViewModel()) }
+
+fun InlineAd() {
+    val adViewModel: AdViewModel = viewModel()
     adViewModel.advertisementState.value?.let {
         when(it) {
             is ResultState.Error -> {
@@ -86,7 +83,6 @@ class AdViewModel: ViewModel() {
                 onError = {
                     Log.e("AdViewModel", "Failed makeAdvertisement: ${it.description}")
                     advertisementState.value = ResultState.Error(it)
-
                 }
             )
         }
