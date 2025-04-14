@@ -84,7 +84,9 @@ class AdViewModel: ViewModel() {
                     advertisementState.value = ResultState.Success(it)
                 },
                 onError = {
-                    Log.d("AdViewModel", "Failed makeAdvertisement: ${it.description}")
+                    Log.e("AdViewModel", "Failed makeAdvertisement: ${it.description}")
+                    advertisementState.value = ResultState.Error(it)
+
                 }
             )
         }
