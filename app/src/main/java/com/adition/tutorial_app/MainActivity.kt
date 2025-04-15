@@ -1,10 +1,10 @@
 package com.adition.tutorial_app
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -31,10 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.adition.sdk_core.api.core.AdService
 import com.adition.sdk_core.api.core.Advertisement
 import com.adition.sdk_core.api.entities.exception.AdError
-import com.adition.sdk_core.api.entities.request.AdRequest
-import com.adition.sdk_presentation_compose.api.Ad
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +58,7 @@ class MainActivity : ComponentActivity() {
     private fun showAppError(adError: AdError) {
         Toast.makeText(this, "Initialization failed: ${adError.description}", Toast.LENGTH_LONG).show()
     }
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,46 +91,6 @@ fun MainScreen(navController: NavController) {
         ) {
             InlineAd()
             Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-fun InlineAd() {
-    val adViewModel: AdViewModel = viewModel()
-    adViewModel.advertisementState.value?.let {
-        when(it) {
-            is ResultState.Error -> {
-                Text(it.exception.description)
-            }
-            is ResultState.Success -> {
-                it.data.adMetadata
-                Ad(
-                    it.data,
-                    modifier = Modifier.aspectRatio(adViewModel.aspectRatio)
-                )
-            }
-        }
-    }
-}
-
-class AdViewModel: ViewModel() {
-    private val adRequest = AdRequest("4810915")
-    var advertisementState = mutableStateOf<ResultState<Advertisement>?>(null)
-    var aspectRatio = 2f
-
-    init {
-        viewModelScope.launch {
-            AdService.makeAdvertisement(adRequest).get(
-                onSuccess = {
-                    aspectRatio = it.adMetadata?.aspectRatio ?: aspectRatio
-                    advertisementState.value = ResultState.Success(it)
-                },
-                onError = {
-                    Log.e("AdViewModel", "Failed makeAdvertisement: ${it.description}")
-                    advertisementState.value = ResultState.Error(it)
-                }
-            )
         }
     }
 }
