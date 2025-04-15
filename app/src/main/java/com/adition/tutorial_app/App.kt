@@ -43,14 +43,12 @@ class App: Application() {
     }
 
     private fun addGlobalParameters() {
-        AdService.setAdRequestGlobalParameter(
-            AdRequestGlobalParameters::gdpr,
-            GDPR(consent = "gdprconsentexample", isRulesEnabled = true)
-        )
+        val gdpr = GDPR(consent = "gdprconsentexample", isRulesEnabled = true)
 
-        AdService.setTrackingGlobalParameter(
-            TrackingGlobalParameters::gdpr,
-            GDPR(consent = "gdprconsentexample", isRulesEnabled = true)
-        )
+        AdService.setAdRequestGlobalParameter(AdRequestGlobalParameters::gdpr, gdpr)
+        // AdService.removeAdRequestGlobalParameter(AdRequestGlobalParameters::gdpr)
+
+        AdService.setTrackingGlobalParameter(TrackingGlobalParameters::gdpr, gdpr)
+        // AdService.removeTrackingGlobalParameter(TrackingGlobalParameters::gdpr)
     }
 }
