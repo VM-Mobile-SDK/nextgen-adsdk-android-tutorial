@@ -94,9 +94,9 @@ class InterstitialAdViewModel : ViewModel() {
     var interstitialState: AdInterstitialState? = null
 
     val adEventListener: AdEventListener = object : AdEventListener {
-        override fun eventProcessed(eventType: AdEventType, adMetadata: AdMetadata) {
-            Log.d("InterstitialAdViewModel events", "Collected EVENT - $eventType")
-            if (eventType == AdEventType.UnloadRequest) {
+        override fun eventProcessed(adEventType: AdEventType, adMetadata: AdMetadata) {
+            Log.d("InterstitialAdViewModel events", "Collected EVENT - $adEventType")
+            if (adEventType == AdEventType.UnloadRequest) {
                 interstitialState?.hide()
             }
         }
