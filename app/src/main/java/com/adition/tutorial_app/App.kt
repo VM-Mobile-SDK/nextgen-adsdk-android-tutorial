@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.adition.sdk_core.api.core.AdService
 import com.adition.sdk_core.api.entities.request.AdRequestGlobalParameters
 import com.adition.sdk_core.api.entities.request.GDPR
+import com.adition.sdk_core.api.entities.request.TrackingGlobalParameters
 import com.adition.sdk_presentation_compose.api.configure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,8 +43,13 @@ class App: Application() {
     }
 
     private fun addGlobalParameters() {
-        AdService.getInstance().setAdRequestGlobalParameter(
+        AdService.setAdRequestGlobalParameter(
             AdRequestGlobalParameters::gdpr,
+            GDPR(consent = "gdprconsentexample", isRulesEnabled = true)
+        )
+
+        AdService.setTrackingGlobalParameter(
+            TrackingGlobalParameters::gdpr,
             GDPR(consent = "gdprconsentexample", isRulesEnabled = true)
         )
     }
