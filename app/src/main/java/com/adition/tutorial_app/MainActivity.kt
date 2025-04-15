@@ -32,6 +32,9 @@ import com.adition.sdk_core.api.core.AdService
 import com.adition.sdk_core.api.core.Advertisement
 import com.adition.sdk_core.api.entities.exception.AdError
 import com.adition.sdk_core.api.entities.request.AdRequest
+import com.adition.sdk_core.api.entities.response.AdMetadata
+import com.adition.sdk_core.api.services.event_listener.AdEventListener
+import com.adition.sdk_core.api.services.event_listener.AdEventType
 import com.adition.sdk_presentation_compose.api.Ad
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme
 import kotlinx.coroutines.launch
@@ -121,9 +124,37 @@ class AdViewModel: ViewModel() {
     var advertisementState = mutableStateOf<ResultState<Advertisement>?>(null)
     var aspectRatio = 2f
 
+    val adEventListener: AdEventListener = object : AdEventListener {
+        override fun eventProcessed(adEventType: AdEventType, adMetadata: AdMetadata) {
+            Log.d("AdViewModel events", "Collected EVENT - $adEventType")
+            when (adEventType) {
+                is AdEventType.Impression -> {}
+                is AdEventType.RendererMessageReceived -> {}
+                is AdEventType.Tap -> {}
+                is AdEventType.UnloadRequest -> {}
+                is AdEventType.Viewable -> {
+                    when (adEventType.percentage) {
+                        AdEventType.VisibilityPercentage.ONE -> {
+                            Log.d("AdViewModel events", "Viewable - 1%")
+                        }
+                        AdEventType.VisibilityPercentage.FIFTY -> {
+                            Log.d("AdViewModel events", "Viewable - 50%")
+                        }
+                        AdEventType.VisibilityPercentage.ONE_HUNDRED -> {
+                            Log.d("AdViewModel events", "Viewable - 100%")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     init {
         viewModelScope.launch {
-            AdService.makeAdvertisement(adRequest).get(
+            AdService.makeAdvertisement(
+                adRequest,
+                adEventListener = adEventListener
+            ).get(
                 onSuccess = {
                     aspectRatio = it.adMetadata?.aspectRatio ?: aspectRatio
                     advertisementState.value = ResultState.Success(it)
