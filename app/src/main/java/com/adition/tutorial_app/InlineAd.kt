@@ -10,7 +10,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adition.sdk_core.api.core.AdService
+import com.adition.sdk_core.api.core.AdService.flushCache
 import com.adition.sdk_core.api.core.Advertisement
+import com.adition.sdk_core.api.entities.exception.AdError
 import com.adition.sdk_core.api.entities.request.AdRequest
 import com.adition.sdk_core.api.entities.request.TagRequest
 import com.adition.sdk_core.api.entities.request.TrackingRequest
@@ -18,6 +20,9 @@ import com.adition.sdk_core.api.entities.response.AdMetadata
 import com.adition.sdk_core.api.services.event_listener.AdEventListener
 import com.adition.sdk_core.api.services.event_listener.AdEventType
 import com.adition.sdk_presentation_compose.api.Ad
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -88,7 +93,26 @@ class InlineAdViewModel: ViewModel() {
                 },
                 onError = {
                     Log.e("InlineAdViewModel", "Failed makeAdvertisement: ${it.description}")
+                    when(it) {
+                        is AdError.CacheWriteAction -> {
+                            flushCache()
+                        }
+                        else -> {}
+                    }
                     advertisementState.value = ResultState.Error(it)
+                }
+            )
+        }
+    }
+
+    private fun flushCache() {
+        viewModelScope.launch {
+            AdService.flushCache().get(
+                onSuccess = {
+                    Log.d("InlineAdViewModel", "FlushCache was successful")
+                },
+                onError = {
+                    Log.d("InlineAdViewModel", "Failed flushCache: ${it.description}")
                 }
             )
         }

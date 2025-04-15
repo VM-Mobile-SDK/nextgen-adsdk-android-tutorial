@@ -25,13 +25,13 @@ class App: Application() {
                 "1800",
                 applicationContext,
                 cacheSizeInMb = 20u,
-                cachePath = "tutorialApp/path/example"
+                cachePath = cacheDir.path + "/tutorialApp/"
             )
 
             initResult.get(
                 onSuccess =  {
                     // coroutineScope.launch { AdService.setCacheSize(20u) }
-                    // coroutineScope.launch { AdService.setCachePath("tutorialApp/path/example2") }
+                    // coroutineScope.launch { AdService.setCachePath(cacheDir.path + "/tutorialApp/") }
                     addGlobalParameters()
                     adServiceStatus.postValue(ResultState.Success(Unit))
                 },
