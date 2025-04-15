@@ -3,6 +3,8 @@ package com.adition.tutorial_app
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.adition.sdk_core.api.core.AdService
+import com.adition.sdk_core.api.entities.request.AdRequestGlobalParameters
+import com.adition.sdk_core.api.entities.request.GDPR
 import com.adition.sdk_presentation_compose.api.configure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +24,7 @@ class App: Application() {
 
             initResult.get(
                 onSuccess =  {
+                    addGlobalParameters()
                     adServiceStatus.postValue(ResultState.Success(Unit))
                 },
                 onError = {
@@ -29,5 +32,12 @@ class App: Application() {
                 }
             )
         }
+    }
+
+    private fun addGlobalParameters() {
+        AdService.getInstance().setAdRequestGlobalParameter(
+            AdRequestGlobalParameters::gdpr,
+            GDPR(consent = "gdprconsentexample", isRulesEnabled = true)
+        )
     }
 }
