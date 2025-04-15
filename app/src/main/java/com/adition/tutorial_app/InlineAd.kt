@@ -12,10 +12,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adition.sdk_core.api.core.AdService
 import com.adition.sdk_core.api.core.Advertisement
 import com.adition.sdk_core.api.entities.request.AdRequest
+import com.adition.sdk_core.api.entities.request.TagRequest
+import com.adition.sdk_core.api.entities.request.TrackingRequest
 import com.adition.sdk_core.api.entities.response.AdMetadata
 import com.adition.sdk_core.api.services.event_listener.AdEventListener
 import com.adition.sdk_core.api.services.event_listener.AdEventType
 import com.adition.sdk_presentation_compose.api.Ad
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @Composable
@@ -69,6 +72,12 @@ class InlineAdViewModel: ViewModel() {
 
     init {
         viewModelScope.launch {
+            val tagUser = async { tagUser() }
+            val conversionTracking = async { conversionTracking() }
+
+            tagUser.await()
+            conversionTracking.await()
+
             AdService.makeAdvertisement(
                 adRequest,
                 adEventListener = adEventListener
@@ -83,5 +92,41 @@ class InlineAdViewModel: ViewModel() {
                 }
             )
         }
+    }
+
+    private suspend fun tagUser() {
+        val tags = listOf(TagRequest.Tag("segments", "category", "home"))
+        val request = TagRequest(tags)
+
+        AdService.tagUser(request).get(
+            onSuccess = {
+                Log.d("AdViewModel", "User tagging was successful")
+            },
+            onError = {
+                Log.d("AdViewModel", "Failed user tagging: ${it.description}")
+            }
+        )
+    }
+
+    private suspend fun conversionTracking() {
+        val request = TrackingRequest(
+            landingPageId = 1,
+            trackingSpotId = 1,
+            orderId = "orderId",
+            itemNumber = "itemNumber",
+            description = "description",
+            quantity = 1,
+            price = 19.99f,
+            total = 39.98f
+        )
+
+        AdService.trackingRequest(request).get(
+            onSuccess = {
+                Log.d("AdViewModel", "Conversion tracking was successful")
+            },
+            onError = {
+                Log.d("AdViewModel", "Failed conversion tracking: ${it.description}")
+            }
+        )
     }
 }
