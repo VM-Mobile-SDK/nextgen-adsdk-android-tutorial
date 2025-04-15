@@ -20,10 +20,17 @@ class App: Application() {
         super.onCreate()
 
         coroutineScope.launch {
-            val initResult = AdService.configure("1800", applicationContext)
+            val initResult = AdService.configure(
+                "1800",
+                applicationContext,
+                cacheSizeInMb = 20u,
+                cachePath = "tutorialApp/path/example"
+            )
 
             initResult.get(
                 onSuccess =  {
+                    // coroutineScope.launch { AdService.setCacheSize(20u) }
+                    // coroutineScope.launch { AdService.setCachePath("tutorialApp/path/example2") }
                     addGlobalParameters()
                     adServiceStatus.postValue(ResultState.Success(Unit))
                 },

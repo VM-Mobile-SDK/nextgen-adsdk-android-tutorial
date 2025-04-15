@@ -40,6 +40,9 @@ import com.adition.sdk_core.api.services.event_listener.AdEventListener
 import com.adition.sdk_core.api.services.event_listener.AdEventType
 import com.adition.sdk_presentation_compose.api.Ad
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -171,7 +174,27 @@ class AdViewModel: ViewModel() {
                 },
                 onError = {
                     Log.e("AdViewModel", "Failed makeAdvertisement: ${it.description}")
+                    when(it) {
+                        is AdError.CacheOverflow -> {
+                            flushCache()
+                        }
+                        else -> {}
+                    }
                     advertisementState.value = ResultState.Error(it)
+                }
+            )
+        }
+    }
+
+    private fun flushCache() {
+        val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+        coroutineScope.launch {
+            AdService.flushCache().get(
+                onSuccess = {
+                    Log.d("AdViewModel", "flushCache successfully")
+                },
+                onError = {
+                    Log.d("AdViewModel", "Failed flushCache: ${it.description}")
                 }
             )
         }
