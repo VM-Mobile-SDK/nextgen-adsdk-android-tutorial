@@ -56,6 +56,7 @@ class InlineAdViewModel: ViewModel() {
             when (adEventType) {
                 is AdEventType.Impression -> {}
                 is AdEventType.RendererMessageReceived -> {}
+                is AdEventType.CustomTrackingEvent -> {}
                 is AdEventType.Tap -> {}
                 is AdEventType.UnloadRequest -> {}
                 is AdEventType.Viewable -> {
