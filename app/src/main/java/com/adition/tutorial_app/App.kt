@@ -3,6 +3,7 @@ package com.adition.tutorial_app
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
 import com.adition.sdk_core.api.core.AdService
+import com.adition.sdk_core.api.entities.exception.AdResult
 import com.adition.sdk_core.api.entities.request.AdRequestGlobalParameters
 import com.adition.sdk_core.api.entities.request.GDPR
 import com.adition.sdk_core.api.entities.request.TrackingGlobalParameters
@@ -32,8 +33,14 @@ class App: Application() {
                 onSuccess =  {
                     // coroutineScope.launch { AdService.setCacheSize(20u) }
                     // coroutineScope.launch { AdService.setCachePath(cacheDir.path + "/tutorialApp/") }
-                    addGlobalParameters()
-                    adServiceStatus.postValue(ResultState.Success(Unit))
+                    // addGlobalParameters()
+                    launch {
+                        AdService.registerRenderer("tutorialad") {
+                            TutorialRenderer()
+                        }
+
+                        adServiceStatus.postValue(ResultState.Success(Unit))
+                    }
                 },
                 onError = {
                     adServiceStatus.postValue(ResultState.Error(it))

@@ -48,7 +48,7 @@ fun MainScreen(navController: NavController) {
             verticalArrangement = Arrangement.Center
         ) {
             InlineAd()
-            Spacer(modifier = Modifier.height(16.dp))
+            CustomAd()
         }
     }
 }
