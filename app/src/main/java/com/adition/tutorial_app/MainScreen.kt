@@ -1,19 +1,20 @@
 package com.adition.tutorial_app
 
+import CustomBrowser
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,11 +28,16 @@ fun Navigation() {
     NavHost(navController = navController, startDestination = "mainScreen") {
         composable("mainScreen") { MainScreen(navController) }
         composable("interstitial") { InterstitialScreen() }
+        composable("custom_browser/{url}") { backStackEntry ->
+            val url = backStackEntry.arguments?.getString("url") ?: ""
+            CustomBrowser(url = url)
+        }
     }
 }
 
 @Composable
 fun MainScreen(navController: NavController) {
+    val openBrowser = remember { mutableStateOf<String?>(null) }
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(
@@ -47,8 +53,17 @@ fun MainScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            InlineAd()
+            InlineAd(openBrowser)
             CustomAd()
         }
     }
+
+    LaunchedEffect(openBrowser.value) {
+        openBrowser.value?.let { url ->
+            navController.navigate("inline_ad/$url")
+            openBrowser.value = null
+        }
+    }
 }
+
+

@@ -4,13 +4,12 @@ import android.util.Log
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adition.sdk_core.api.core.AdService
-import com.adition.sdk_core.api.core.AdService.flushCache
 import com.adition.sdk_core.api.core.Advertisement
 import com.adition.sdk_core.api.entities.exception.AdError
 import com.adition.sdk_core.api.entities.request.AdRequest
@@ -20,15 +19,13 @@ import com.adition.sdk_core.api.entities.response.AdMetadata
 import com.adition.sdk_core.api.services.event_listener.AdEventListener
 import com.adition.sdk_core.api.services.event_listener.AdEventType
 import com.adition.sdk_presentation_compose.api.Ad
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 @Composable
-fun InlineAd() {
-    val viewModel: InlineAdViewModel = viewModel()
+fun InlineAd(openBrowser: MutableState<String?>) {
+    val viewModel = InlineAdViewModel(openBrowser)
     viewModel.advertisementState.value?.let {
         when(it) {
             is ResultState.Error -> {
@@ -45,10 +42,11 @@ fun InlineAd() {
     }
 }
 
-class InlineAdViewModel: ViewModel() {
+class InlineAdViewModel(openBrowser: MutableState<String?>): ViewModel() {
     private val adRequest = AdRequest("4810915")
     var advertisementState = mutableStateOf<ResultState<Advertisement>?>(null)
     var aspectRatio = 2f
+    private val customerTargetURLHandler = CustomTargetURLHandler(openBrowser)
 
     val adEventListener: AdEventListener = object : AdEventListener {
         override fun eventProcessed(adEventType: AdEventType, adMetadata: AdMetadata) {
@@ -86,7 +84,8 @@ class InlineAdViewModel: ViewModel() {
 
             AdService.makeAdvertisement(
                 adRequest,
-                adEventListener = adEventListener
+                adEventListener = adEventListener,
+                targetURLHandler = customerTargetURLHandler
             ).get(
                 onSuccess = {
                     aspectRatio = it.adMetadata?.aspectRatio ?: aspectRatio
