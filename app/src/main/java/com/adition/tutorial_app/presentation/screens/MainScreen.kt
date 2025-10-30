@@ -52,6 +52,12 @@ fun MainScreen(
             ) {
                 Text("Inline Ads List")
             }
+
+            Button(
+                onClick = { navController.navigate(InterstitialRoute) }
+            ) {
+                Text("Interstitial Ad")
+            }
         }
     }
 }
