@@ -7,6 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.adition.tutorial_app.presentation.screens.BasketRoute
+import com.adition.tutorial_app.presentation.screens.BasketScreen
 import com.adition.tutorial_app.presentation.screens.InterstitialRoute
 import com.adition.tutorial_app.presentation.screens.InterstitialScreen
 import com.adition.tutorial_app.presentation.screens.MainRoute
@@ -31,6 +34,10 @@ class MainActivity : ComponentActivity() {
                     composable<InlineRoute> { InlineScreen(navController = navController) }
                     composable<InterstitialRoute> {
                         InterstitialScreen(navController = navController)
+                    }
+                    composable<BasketRoute> {
+                        val route = it.toRoute<BasketRoute>()
+                        BasketScreen(route = route, navController = navController)
                     }
                 }
             }

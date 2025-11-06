@@ -52,7 +52,7 @@ fun InlineScreen(
                     dataSource,
                     key = { it.id }
                 ) { itemState ->
-                    AdItem(itemState)
+                    AdItem(itemState, navController)
                 }
             }
         }
@@ -104,7 +104,8 @@ class InlineViewModel(
                     val itemState = AdItemState(
                         index,
                         adService,
-                        request
+                        request,
+                        viewModelScope
                     )
 
                     itemState.loadAdvertisement()
