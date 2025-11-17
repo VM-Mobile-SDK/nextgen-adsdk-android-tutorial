@@ -1,47 +1,11 @@
 package com.adition.tutorial_app
 
 import android.app.Application
-import androidx.lifecycle.MutableLiveData
-import com.adition.sdk_core.api.core.AdService
-import com.adition.sdk_core.api.entities.request.AdRequestGlobalParameters
-import com.adition.sdk_core.api.entities.request.GDPR
-import com.adition.sdk_core.api.entities.request.TrackingGlobalParameters
-import com.adition.sdk_presentation_compose.api.configure
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import com.adition.tutorial_app.di.ServiceLocator
 
-
-class App: Application() {
-    private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-    val adServiceStatus = MutableLiveData<ResultState<Unit>>()
-
+class App : Application() {
     override fun onCreate() {
         super.onCreate()
-
-        coroutineScope.launch {
-            val initResult = AdService.configure("1800", applicationContext)
-
-            initResult.get(
-                onSuccess =  {
-                    addGlobalParameters()
-                    adServiceStatus.postValue(ResultState.Success(Unit))
-                },
-                onError = {
-                    adServiceStatus.postValue(ResultState.Error(it))
-                }
-            )
-        }
-    }
-
-    private fun addGlobalParameters() {
-        val gdpr = GDPR(consent = "gdprconsentexample", isRulesEnabled = true)
-
-        AdService.setAdRequestGlobalParameter(AdRequestGlobalParameters::gdpr, gdpr)
-        // AdService.removeAdRequestGlobalParameter(AdRequestGlobalParameters::gdpr)
-
-        AdService.setTrackingGlobalParameter(TrackingGlobalParameters::gdpr, gdpr)
-        // AdService.removeTrackingGlobalParameter(TrackingGlobalParameters::gdpr)
+        ServiceLocator.init(applicationContext)
     }
 }
