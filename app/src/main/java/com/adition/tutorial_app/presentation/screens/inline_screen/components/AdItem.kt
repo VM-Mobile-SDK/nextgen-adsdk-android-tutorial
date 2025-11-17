@@ -1,6 +1,5 @@
 package com.adition.tutorial_app.presentation.screens.inline_screen.components
 
-import android.R.attr.data
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +13,6 @@ import com.adition.ad_sdk.api.entities.exception.AdResult
 import com.adition.ad_sdk.api.entities.request.AdPlacementType
 import com.adition.ad_sdk.api.entities.request.AdRequest
 import com.adition.ad_sdk.api.presentation.Ad
-import com.adition.ad_sdk.api.services.event_listener.AdEventListener
 import com.adition.tutorial_app.presentation.entities.PresentationState
 import com.adition.tutorial_app.ui.components.PresentationStateContainer
 import kotlinx.coroutines.flow.MutableStateFlow
