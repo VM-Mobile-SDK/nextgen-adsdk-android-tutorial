@@ -12,8 +12,8 @@ import com.adition.tutorial_app.presentation.screens.BasketRoute
 import com.adition.tutorial_app.presentation.screens.BasketScreen
 import com.adition.tutorial_app.presentation.screens.InterstitialRoute
 import com.adition.tutorial_app.presentation.screens.InterstitialScreen
-import com.adition.tutorial_app.presentation.screens.MainRoute
-import com.adition.tutorial_app.presentation.screens.MainScreen
+import com.adition.tutorial_app.presentation.screens.main_screen.MainRoute
+import com.adition.tutorial_app.presentation.screens.main_screen.MainScreen
 import com.adition.tutorial_app.presentation.screens.inline_screen.InlineRoute
 import com.adition.tutorial_app.presentation.screens.inline_screen.InlineScreen
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme

@@ -1,5 +1,6 @@
-package com.adition.tutorial_app.presentation.screens
+package com.adition.tutorial_app.presentation.screens.main_screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,7 +29,9 @@ import com.adition.ad_sdk.api.entities.request.global_parameters.GlobalParameter
 import com.adition.ad_sdk.api.entities.request.global_parameters.GlobalParameters
 import com.adition.tutorial_app.di.ServiceLocator
 import com.adition.tutorial_app.presentation.entities.PresentationState
+import com.adition.tutorial_app.presentation.screens.InterstitialRoute
 import com.adition.tutorial_app.presentation.screens.inline_screen.InlineRoute
+import com.adition.tutorial_app.presentation.screens.main_screen.components.LocaleChangeEffect
 import com.adition.tutorial_app.ui.components.PresentationStateContainer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -76,6 +79,8 @@ fun MainScreen(
         uiState,
         Modifier.fillMaxSize()
     ) {
+        LocaleChangeEffect { viewModel.onLocaleChange() }
+
         Column(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -122,10 +127,14 @@ class MainViewModel(
                 .configure(
                     "1800",
                     parentCoroutineScope = this,
+                    cacheSize = 20u,
                     globalParameters = globalParameters,
                     adRequestGlobalParameters = adRequestGlobalParameters
                 )
                 .flatMap { adServiceProvider.get() }
+                // .onSuccess {
+                //     val possibleError = it.setCacheSize(20u).adErrorOrNull()
+                // }
                 .onSuccess { adService ->
                     adService.setGlobalParameters(
                         GlobalParameter(
@@ -150,6 +159,22 @@ class MainViewModel(
                     onSuccess = { _state.value = PresentationState.Loaded(Unit) },
                     onError = { _state.value = PresentationState.Error(it.description) }
                 )
+        }
+    }
+
+    fun onLocaleChange() {
+        viewModelScope.launch {
+            adServiceProvider.get()
+                .onSuccess {
+                    val possibleError = it.flushCache().adErrorOrNull()
+
+                    if (possibleError != null) {
+                        Log.e(
+                            "MainViewModel",
+                            "Error flushing cache: ${possibleError.description}"
+                        )
+                    }
+                }
         }
     }
 }
