@@ -1,36 +1,46 @@
 package com.adition.tutorial_app
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.adition.sdk_core.api.entities.exception.AdError
+import androidx.activity.enableEdgeToEdge
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.adition.tutorial_app.presentation.screens.BasketRoute
+import com.adition.tutorial_app.presentation.screens.BasketScreen
+import com.adition.tutorial_app.presentation.screens.InterstitialRoute
+import com.adition.tutorial_app.presentation.screens.InterstitialScreen
+import com.adition.tutorial_app.presentation.screens.main_screen.MainRoute
+import com.adition.tutorial_app.presentation.screens.main_screen.MainScreen
+import com.adition.tutorial_app.presentation.screens.inline_screen.InlineRoute
+import com.adition.tutorial_app.presentation.screens.inline_screen.InlineScreen
 import com.adition.tutorial_app.ui.theme.TutorialAppTheme
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            TutorialAppTheme {
+                val navController = rememberNavController()
 
-        val app = application as App
-        app.adServiceStatus.observe(this) { result ->
-            when(result) {
-                is ResultState.Error -> {
-                    showAppError(result.exception)
-                }
-
-                is ResultState.Success -> {
-                    setContent {
-                        TutorialAppTheme {
-                            Navigation()
-                        }
+                NavHost(
+                    navController = navController,
+                    startDestination = MainRoute
+                ) {
+                    composable<MainRoute> { MainScreen(navController = navController) }
+                    composable<InlineRoute> { InlineScreen(navController = navController) }
+                    composable<InterstitialRoute> {
+                        InterstitialScreen(navController = navController)
+                    }
+                    composable<BasketRoute> {
+                        val route = it.toRoute<BasketRoute>()
+                        BasketScreen(route = route, navController = navController)
                     }
                 }
             }
         }
-    }
-
-    private fun showAppError(adError: AdError) {
-        Toast.makeText(this, "Initialization failed: ${adError.description}", Toast.LENGTH_LONG).show()
     }
 }

@@ -12,8 +12,6 @@ fun CustomBrowser(url: String) {
     AndroidView(
         factory = {
             WebView(context).apply {
-                settings.javaScriptEnabled = true
-
                 loadUrl(url)
             }
         },
