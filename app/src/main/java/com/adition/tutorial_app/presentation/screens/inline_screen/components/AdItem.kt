@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,15 +24,19 @@ import com.adition.ad_sdk.api.entities.request.AdRequest
 import com.adition.ad_sdk.api.entities.request.TagRequest
 import com.adition.ad_sdk.api.entities.response.AdMetadata
 import com.adition.ad_sdk.api.presentation.Ad
+import com.adition.ad_sdk.api.services.event_handler.TargetURLHandler
 import com.adition.ad_sdk.api.services.event_listener.AdEventListener
 import com.adition.ad_sdk.api.services.event_listener.AdTapEvent
 import com.adition.ad_sdk.api.services.event_listener.AdTrackingEvent
 import com.adition.tutorial_app.presentation.entities.PresentationState
 import com.adition.tutorial_app.presentation.screens.BasketRoute
+import com.adition.tutorial_app.presentation.screens.BrowserRoute
 import com.adition.tutorial_app.ui.components.LabeledContent
 import com.adition.tutorial_app.ui.components.PresentationStateContainer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -39,6 +44,17 @@ import kotlin.random.Random
 @Composable
 fun AdItem(state: AdItemState, navController: NavController) {
     val uiState by state.state.collectAsState()
+    val events = state.events
+
+    LaunchedEffect(Unit) {
+        events.collect { event ->
+            when (event) {
+                is AdItemState.Event.OpenURL -> {
+                    navController.navigate(BrowserRoute(event.url))
+                }
+            }
+        }
+    }
 
     PresentationStateContainer(
         uiState,
@@ -83,9 +99,19 @@ class AdItemState(
     private val parentCoroutineScope: CoroutineScope
 ) {
     private val _state = MutableStateFlow<PresentationState<ItemData>>(PresentationState.Loading)
+    private val _events = MutableSharedFlow<Event>()
     private var advertisement: Advertisement? = null
+    private val targetUrlHandler: TargetURLHandler = object : TargetURLHandler {
+        override fun isValidURL(url: String) = true // Can be skipped
+        override fun handleURL(url: String) {
+            parentCoroutineScope.launch {
+                _events.emit(Event.OpenURL(url))
+            }
+        }
+    }
 
     val state = _state.asStateFlow()
+    val events = _events.asSharedFlow()
     val price: Int = Random.nextInt(10, 200)
 
     fun onBasket() {
@@ -120,7 +146,7 @@ class AdItemState(
             .makeAdvertisement(
                 adRequest = request,
                 placementType  = AdPlacementType.INLINE, // Inline by default
-                targetURLHandler = null, // Can be skipped
+                targetURLHandler = targetUrlHandler,
                 adEventListener = eventListener
             )
             .map { ItemData(it, it.getMetadata()?.aspectRatio) }
@@ -301,6 +327,10 @@ class AdItemState(
 
             return AdEventListener.FailureAction.IGNORE
         }
+    }
+
+    sealed class Event {
+        data class OpenURL(val url: String) : Event()
     }
 }
 

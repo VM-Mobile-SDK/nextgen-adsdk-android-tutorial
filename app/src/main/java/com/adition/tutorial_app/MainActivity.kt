@@ -10,6 +10,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.adition.tutorial_app.presentation.screens.BasketRoute
 import com.adition.tutorial_app.presentation.screens.BasketScreen
+import com.adition.tutorial_app.presentation.screens.BrowserRoute
+import com.adition.tutorial_app.presentation.screens.BrowserScreen
 import com.adition.tutorial_app.presentation.screens.InterstitialRoute
 import com.adition.tutorial_app.presentation.screens.InterstitialScreen
 import com.adition.tutorial_app.presentation.screens.main_screen.MainRoute
@@ -38,6 +40,10 @@ class MainActivity : ComponentActivity() {
                     composable<BasketRoute> {
                         val route = it.toRoute<BasketRoute>()
                         BasketScreen(route = route, navController = navController)
+                    }
+                    composable<BrowserRoute> {
+                        val route = it.toRoute<BrowserRoute>()
+                        BrowserScreen(url = route.url, navController = navController)
                     }
                 }
             }
