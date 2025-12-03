@@ -18,7 +18,6 @@ import androidx.navigation.NavController
 import com.adition.ad_sdk.api.core.AdService
 import com.adition.ad_sdk.api.core.Advertisement
 import com.adition.ad_sdk.api.entities.exception.AdError
-import com.adition.ad_sdk.api.entities.exception.AdResult
 import com.adition.ad_sdk.api.entities.request.AdPlacementType
 import com.adition.ad_sdk.api.entities.request.AdRequest
 import com.adition.ad_sdk.api.entities.request.TagRequest
@@ -33,6 +32,7 @@ import com.adition.tutorial_app.presentation.screens.BasketRoute
 import com.adition.tutorial_app.presentation.screens.BrowserRoute
 import com.adition.tutorial_app.ui.components.LabeledContent
 import com.adition.tutorial_app.ui.components.PresentationStateContainer
+import com.adition.tutorial_app.utility.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -331,14 +331,5 @@ class AdItemState(
 
     sealed class Event {
         data class OpenURL(val url: String) : Event()
-    }
-}
-
-private suspend fun <T, ActionResult> AdResult<T>.map(
-    action: suspend (T) -> ActionResult
-): AdResult<ActionResult> {
-    return when (this) {
-        is AdResult.Success -> AdResult.Success(action(this.result))
-        is AdResult.Error -> AdResult.Error(this.error)
     }
 }

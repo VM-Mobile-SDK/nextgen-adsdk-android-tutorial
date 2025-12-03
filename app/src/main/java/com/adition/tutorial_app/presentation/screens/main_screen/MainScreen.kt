@@ -20,7 +20,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.adition.ad_sdk.api.core.AdServiceProviderInterface
-import com.adition.ad_sdk.api.entities.exception.AdResult
 import com.adition.ad_sdk.api.entities.request.global_parameters.AccessMode
 import com.adition.ad_sdk.api.entities.request.global_parameters.AdRequestGlobalParameter
 import com.adition.ad_sdk.api.entities.request.global_parameters.AdRequestGlobalParameters
@@ -33,6 +32,9 @@ import com.adition.tutorial_app.presentation.screens.InterstitialRoute
 import com.adition.tutorial_app.presentation.screens.inline_screen.InlineRoute
 import com.adition.tutorial_app.presentation.screens.main_screen.components.LocaleChangeEffect
 import com.adition.tutorial_app.ui.components.PresentationStateContainer
+import com.adition.tutorial_app.ui.components.tutorial_renderer.TutorialRenderer
+import com.adition.tutorial_app.utility.flatMap
+import com.adition.tutorial_app.utility.onSuccess
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -155,6 +157,15 @@ class MainViewModel(
                         AdRequestGlobalParameters::isIpIdentified
                     )
                 }
+                .onSuccess {
+                    it.registerRenderer("tutorialad") { serviceLocator ->
+                        TutorialRenderer(
+                            cache = serviceLocator.assetCache,
+                            requestService = serviceLocator.assetRequestService,
+                            eventHandler = serviceLocator.eventHandler
+                        )
+                    }
+                }
                 .get(
                     onSuccess = { _state.value = PresentationState.Loaded(Unit) },
                     onError = { _state.value = PresentationState.Error(it.description) }
@@ -188,24 +199,3 @@ private fun Boolean.toCookiesAccess(): AdRequestGlobalParameters.CookiesAccess {
 }
 
 private fun Boolean.toAccessMode() = if (this) AccessMode.OPT_IN else AccessMode.OPT_OUT
-
-private suspend fun <T, ActionResult> AdResult<T>.flatMap(
-    action: suspend (T) -> AdResult<ActionResult>
-): AdResult<ActionResult> {
-    return when (this) {
-        is AdResult.Success -> action(this.result)
-        is AdResult.Error -> AdResult.Error(this.error)
-    }
-}
-
-private suspend fun <T> AdResult<T>.onSuccess(
-    action: suspend (T) -> Unit
-) : AdResult<T> {
-    return when (this) {
-        is AdResult.Success -> {
-            action(this.result)
-            this
-        }
-        is AdResult.Error -> this
-    }
-}

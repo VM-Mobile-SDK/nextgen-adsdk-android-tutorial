@@ -83,7 +83,7 @@ class InlineViewModel(
     }
 
     private suspend fun getDataSource(): List<AdItemState> = supervisorScope {
-        val requests = List(5) {
+        val requests = MutableList(5) {
             AdRequest(
                 contentUnit = "4810915",
                 profiles = hashMapOf(), // Can be skipped
@@ -97,6 +97,8 @@ class InlineViewModel(
                 dsa = null // Can be skipped
             )
         }
+
+        requests.add(0, AdRequest(contentUnit = "5227780"))
 
         requests
             .mapIndexed { index, request ->
